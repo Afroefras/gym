@@ -6,18 +6,20 @@ from gspread.exceptions import WorksheetNotFound
 from oauth2client.service_account import ServiceAccountCredentials as sac
 
 load_dotenv()
+AUTH_PROVIDER = "https://www.googleapis.com/oauth2/v1/certs"
 GOOGLE_SHEETS_CREDENTIALS = {
-        "type": "service_account",
-        "project_id": "gymworkout",
-        "auth_uri": "https://accounts.google.com/o/oauth2/auth",
-        "token_uri": "https://oauth2.googleapis.com/token",
-        "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
-        "private_key_id": getenv("GOOGLE_PRIVATE_KEY_ID"),
-        "private_key": getenv("GOOGLE_PRIVATE_KEY").replace("\\n", "\n"),
-        "client_email": getenv("GOOGLE_CLIENT_EMAIL"),
-        "client_id": getenv("GOOGLE_CLIENT_ID"),
-        "client_x509_cert_url": getenv("GOOGLE_CLIENT_X509_CERT_URL"),
-    }
+    "type": "service_account",
+    "project_id": "gymworkout",
+    "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+    "token_uri": "https://oauth2.googleapis.com/token",
+    "auth_provider_x509_cert_url": AUTH_PROVIDER,
+    "private_key_id": getenv("GOOGLE_PRIVATE_KEY_ID"),
+    "private_key": getenv("GOOGLE_PRIVATE_KEY").replace("\\n", "\n"),
+    "client_email": getenv("GOOGLE_CLIENT_EMAIL"),
+    "client_id": getenv("GOOGLE_CLIENT_ID"),
+    "client_x509_cert_url": getenv("GOOGLE_CLIENT_X509_CERT_URL"),
+}
+
 
 def connect_gsheets(gsheets_url: str, credentials: dict) -> Worksheet:
     FEEDS = "https://spreadsheets.google.com/feeds"
@@ -25,6 +27,7 @@ def connect_gsheets(gsheets_url: str, credentials: dict) -> Worksheet:
     session = authorize(client)
     book = session.open_by_url(gsheets_url)
     return book
+
 
 def read_gsheets(gsheets_url: str, sheets_to_read: list) -> DataFrame:
     """
@@ -55,9 +58,10 @@ def read_gsheets(gsheets_url: str, sheets_to_read: list) -> DataFrame:
             print(f'Sheetname: "{sheet}" was not found at\n{gsheets_url}')
     return df
 
+
 def update_sheet(gsheets_url: str, sheet_name: str, data: DataFrame) -> None:
     book = connect_gsheets(gsheets_url, GOOGLE_SHEETS_CREDENTIALS)
-    
+
     try:
         sheet = book.worksheet(sheet_name)
     except WorksheetNotFound:
