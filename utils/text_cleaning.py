@@ -26,10 +26,11 @@ def clean_number(clean, to_int: bool = False) -> None:
     return clean
 
 
-def clean_text(text: str, pattern: str = r"[^a-zA-Z0-9\s]", lower: bool = False) -> str:
+def clean_text(text: str, patt: str = r"[^a-zA-Z0-9\s]", lower=True) -> str:
     """
-    It replaces accents with their unaccented versions, removes special characters,
-    keeps just one space max and optionally makes the text lowercase.
+    It replaces accents with their unaccented versions,
+    removes special characters, keeps just one space max and
+    optionally makes the text lowercase.
     It also checks if the resulting text is empty and returns nan if it is.
 
     Args:
@@ -41,8 +42,9 @@ def clean_text(text: str, pattern: str = r"[^a-zA-Z0-9\s]", lower: bool = False)
     Returns: string cleaned text
     """
 
-    clean = normalize("NFD", str(text).replace("\n", " \n ")).encode("ascii", "ignore")
-    clean = sub(pattern, " ", clean.decode("utf-8"), flags=UNICODE)
+    clean = normalize("NFD", str(text).replace("\n", " \n "))
+    clean = clean.encode("ascii", "ignore")
+    clean = sub(patt, " ", clean.decode("utf-8"), flags=UNICODE)
     clean = sub(r"\s{2,}", " ", clean.strip())
     if lower:
         clean = clean.lower()
@@ -77,7 +79,7 @@ def give_options(
         return [None]
 
     clean = clean_text(text, lower=True)
-    clean_options = list(map(lambda x: clean_text(x, lower=True), valid_options))
+    clean_options = map(clean_text, valid_options)
     options_dict = dict(zip(clean_options, valid_options))
 
     closest_clean_options = get_close_matches(
